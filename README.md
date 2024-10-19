@@ -1,5 +1,5 @@
 ## Doctor Schedule 🩺📅
-This is an python script to help me generate schedule for doctors in [DWH Gonda](https://gonda.nic.in/public-utility/district-womens-hospital/). This is purely for recreational purposes and is not meant to be used for production. The script uses [Google's OR-Tools SAT Solver](https://developers.google.com/optimization/cp/cp_solver) for generating the schedule.
+This is an python script to help me generate schedule for doctors at [DWH Gonda](https://gonda.nic.in/public-utility/district-womens-hospital/). This is purely for recreational purposes only and is not meant to be used for production. The script uses [Google's OR-Tools SAT Solver](https://developers.google.com/optimization/cp/cp_solver) for generating the schedule.
 
 ## Prerequisites
 
