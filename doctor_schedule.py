@@ -34,17 +34,17 @@ def generate_schedule(
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     num_doctors = len(doctors)
     dates = generate_month_dates(year, month)
-    num_dates = len(dates)
 
     # Create the model
     model = cp_model.CpModel()
 
     # Variables
-    shift_vars = {}
+    shift_vars: Dict[Tuple[int, int, Shift], cp_model.IntVar] = {}
 
     # Create variables for each doctor, each day, and each shift
     for d in range(num_doctors):
-        for day in range(num_dates):
+        for dt in dates:
+            day = dt.day
             for shift in shifts:
                 shift_vars[(d, day, shift)] = model.NewBoolVar(
                     f"doctor_{d}_day_{day}_{shift}"
@@ -53,17 +53,18 @@ def generate_schedule(
     # Constraints
     # First night off
     fd = doctors.index(first_night_off)
-    model.Add(sum(shift_vars[(fd, 0, shift)] for shift in shifts) < 1)
+    model.Add(sum(shift_vars[(fd, 1, shift)] for shift in shifts) < 1)
 
     monday_doctors = {
         doctors.index(doctor)
         for (doctor, day), _ in fixed_shifts.items()
-        if dates[day].weekday() == weeks.index("Mon")
+        if dates[day - 1].weekday() == weeks.index("Mon")
     }
 
     # Each doctor can only work one shift per day, except for Sunday shift constraints
-    for day in range(num_dates):
-        if dates[day].weekday() == weeks.index("Sun"):
+    for dt in dates:
+        day = dt.day
+        if dt.weekday() == weeks.index("Sun"):
             for d in range(num_doctors):
                 if d not in monday_doctors:
                     model.Add(
@@ -78,19 +79,20 @@ def generate_schedule(
                 model.Add(sum(shift_vars[(d, day, shift)] for shift in shifts) <= 1)
 
     # All shifts must have exactly one doctor assigned
-    for day in range(num_dates):
+    for dt in dates:
+        day = dt.day
         for shift in shifts:
             model.Add(sum(shift_vars[(d, day, shift)] for d in range(num_doctors)) >= 1)
 
     # Fixed shifts
     for (doctor, day), shift in fixed_shifts.items():
-        d_index = doctors.index(doctor)
-        model.Add(shift_vars[(d_index, day, shift)] == 1)
+        d = doctors.index(doctor)
+        model.Add(shift_vars[(d, day, shift)] == 1)
 
     # Unavailable shifts
     for (doctor, day), shift in unavailable_shifts.items():
-        d_index = doctors.index(doctor)
-        model.Add(shift_vars[(d_index, day, shift)] == 0)
+        d = doctors.index(doctor)
+        model.Add(shift_vars[(d, day, shift)] == 0)
 
     # Night shift constraints
     night_shifts_count = {}
@@ -102,19 +104,21 @@ def generate_schedule(
         # Sum the night shifts assigned to this doctor
         model.Add(
             night_shifts_count[d]
-            == sum(shift_vars[(d, day, "night")] for day in range(num_dates))
+            == sum(shift_vars[(d, dt.day, "night")] for dt in dates)
         )
 
     # Night off logic: if a doctor works night shift, they cannot work the next day
     for d in range(num_doctors):
-        for day in range(num_dates - 1):
+        for dt in dates[:-1]:
+            day = dt.day
             model.Add(
                 sum(shift_vars[(d, day + 1, shift)] for shift in shifts) == 0
             ).OnlyEnforceIf(shift_vars[(d, day, "night")])
 
     # if OT no emergency next day: if a doctor works ot duty, then no morning emergency next day
     for d in range(num_doctors):
-        for day in range(num_dates - 1):
+        for dt in dates[:-1]:
+            day = dt.day
             model.Add(shift_vars[(d, day + 1, "morning")] == 0).OnlyEnforceIf(
                 shift_vars[(d, day, "ot_duty")]
             )
@@ -123,17 +127,17 @@ def generate_schedule(
     for d in range(num_doctors):
         model.Add(
             sum(
-                shift_vars[(d, day, "ot_duty")]
-                for day in range(num_dates)
-                if dates[day].weekday() == weeks.index("Sun")
+                shift_vars[(d, dt.day, "ot_duty")]
+                for dt in dates
+                if dt.weekday() == weeks.index("Sun")
             )
             <= 1
         )
         model.Add(
             sum(
-                shift_vars[(d, day, "morning")]
-                for day in range(num_dates)
-                if dates[day].weekday() == weeks.index("Sun")
+                shift_vars[(d, dt.day, "morning")]
+                for dt in dates
+                if dt.weekday() == weeks.index("Sun")
             )
             <= 1
         )
@@ -142,17 +146,17 @@ def generate_schedule(
     for d in range(num_doctors):
         model.Add(
             sum(
-                shift_vars[(d, day, "ot_duty")]
-                for day in range(num_dates)
-                if dates[day].weekday() == weeks.index("Sat")
+                shift_vars[(d, dt.day, "ot_duty")]
+                for dt in dates
+                if dt.weekday() == weeks.index("Sat")
             )
             <= 1
         )
         model.Add(
             sum(
-                shift_vars[(d, day, "night")]
-                for day in range(num_dates)
-                if dates[day].weekday() == weeks.index("Sat")
+                shift_vars[(d, dt.day, "night")]
+                for dt in dates
+                if dt.weekday() == weeks.index("Sat")
             )
             <= 1
         )
@@ -161,21 +165,23 @@ def generate_schedule(
     solver = cp_model.CpSolver()
     status = solver.Solve(model)
 
-    if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
 
         def find_doctor(day, shift):
             for d in range(num_doctors):
                 if solver.Value(shift_vars[(d, day, shift)]) >= 1:
                     return doctors[d]
+            return None
 
         schedule = []
-        for day in range(num_dates):
+        for dt in dates:
+            day = dt.day
             week_num = day % 7
-            week_day = dates[day].weekday()
+            week_day = dt.weekday()
             schedule.append(
                 [
                     day,
-                    dates[day],
+                    dt,
                     week_num,
                     weeks[week_day],
                     *[find_doctor(day, shift) for shift in shifts],

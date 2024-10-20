@@ -1,5 +1,3 @@
-from datetime import date
-
 from pandas import ExcelWriter
 from doctor_schedule import generate_schedule, generate_month_dates, weeks
 
@@ -20,7 +18,8 @@ def main():
     dates = generate_month_dates(year, month)
     fixed_shifts = {}
     unavailable_shifts = {}
-    for day, dt in enumerate(dates):
+    for dt in dates:
+        day = dt.day
         week = dt.weekday()
 
         if week == weeks.index("Mon"):
@@ -34,7 +33,7 @@ def main():
         if week == weeks.index("Fri"):
             fixed_shifts[("Dr. Suvarna Kumar", day)] = "ot_duty"
 
-        if week == weeks.index("Tue") and dt != date(year=year, month=month, day=29):
+        if week == weeks.index("Tue") and day != 29:
             fixed_shifts[("Dr. Suvarna Kumar", day)] = "night"
         if week != weeks.index("Sun"):
             fixed_shifts[("Dr. Madhuri Tripathi", day)] = "evening"
@@ -65,7 +64,7 @@ def main():
         max_night_shifts=max_night_shifts,
         first_night_off=first_night_off,
     )
-    if solution_maybe != None:
+    if solution_maybe is not None:
         df_schedule, df_stats = solution_maybe
         excel_output = f"schedule_{year}_{month}.xlsx"
         print(f"One solution found!, writing it to {excel_output}")
