@@ -1,19 +1,20 @@
 from pandas import ExcelWriter
 from doctor_schedule import generate_schedule, generate_month_dates, weeks
+from doctors import *
 
 
 def main():
     year = 2024
     month = 10
     doctors = [
-        "Dr. Minakshi Mishra",
-        "Dr. Abhilasha Mishra",
-        "Dr. Amit Tripathi",
-        "Dr. Suvarna Kumar",
-        "Dr. Rashmi Sharma",
-        "Dr. Sharmila",
-        "Dr. Saumya Shukla",
-        "Dr. Madhuri Tripathi",
+        DR_MINAKSHI_MISHRA,
+        DR_ABHILASHA_MISHRA,
+        DR_AMIT_TRIPATHI,
+        DR_SUVARNA_KUMAR,
+        DR_RASHMI_SHARMA,
+        DR_SHARMILA,
+        DR_SAUMYA_SHUKLA,
+        DR_MADHURI_TRIPATHI,
     ]
     dates = generate_month_dates(year, month)
     fixed_shifts = {}
@@ -23,37 +24,37 @@ def main():
         week = dt.weekday()
 
         if week == weeks.index("Mon"):
-            fixed_shifts[("Dr. Abhilasha Mishra", day)] = "ot_duty"
+            fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty"]
         if week == weeks.index("Tue"):
-            fixed_shifts[("Dr. Amit Tripathi", day)] = "ot_duty"
+            fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
         if week == weeks.index("Wed"):
-            fixed_shifts[("Dr. Amit Tripathi", day)] = "ot_duty"
+            fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
         if week == weeks.index("Thu"):
-            fixed_shifts[("Dr. Saumya Shukla", day)] = "ot_duty"
+            fixed_shifts[(DR_SAUMYA_SHUKLA, day)] = ["ot_duty"]
         if week == weeks.index("Fri"):
-            fixed_shifts[("Dr. Suvarna Kumar", day)] = "ot_duty"
+            fixed_shifts[(DR_SUVARNA_KUMAR, day)] = ["ot_duty"]
 
         if week == weeks.index("Tue") and day != 29:
-            fixed_shifts[("Dr. Suvarna Kumar", day)] = "night"
+            fixed_shifts[(DR_SUVARNA_KUMAR, day)] = ["night"]
         if week != weeks.index("Sun"):
-            fixed_shifts[("Dr. Madhuri Tripathi", day)] = "evening"
+            fixed_shifts[(DR_MADHURI_TRIPATHI, day)] = ["evening"]
 
-        unavailable_shifts[("Dr. Rashmi Sharma", day)] = "ot_duty"
-        unavailable_shifts[("Dr. Madhuri Tripathi", day)] = "ot_duty"
-        unavailable_shifts[("Dr. Sharmila", day)] = "ot_duty"
-        unavailable_shifts[("Dr. Minakshi Mishra", day)] = "ot_duty"
-        unavailable_shifts[("Dr. Madhuri Tripathi", day)] = "night"
+        unavailable_shifts[(DR_RASHMI_SHARMA, day)] = ["ot_duty"]
+        unavailable_shifts[(DR_MADHURI_TRIPATHI, day)] = ["ot_duty"]
+        unavailable_shifts[(DR_SHARMILA, day)] = ["ot_duty"]
+        unavailable_shifts[(DR_MINAKSHI_MISHRA, day)] = ["ot_duty"]
+        unavailable_shifts[(DR_MADHURI_TRIPATHI, day)] = ["night"]
     max_night_shifts = {
-        "Dr. Minakshi Mishra": 5,
-        "Dr. Abhilasha Mishra": 4,
-        "Dr. Amit Tripathi": 4,
-        "Dr. Suvarna Kumar": 5,
-        "Dr. Rashmi Sharma": 4,
-        "Dr. Sharmila": 4,
-        "Dr. Saumya Shukla": 5,
-        "Dr. Madhuri Tripathi": 0,
+        DR_MINAKSHI_MISHRA: 5,
+        DR_ABHILASHA_MISHRA: 4,
+        DR_AMIT_TRIPATHI: 4,
+        DR_SUVARNA_KUMAR: 5,
+        DR_RASHMI_SHARMA: 4,
+        DR_SHARMILA: 4,
+        DR_SAUMYA_SHUKLA: 5,
+        DR_MADHURI_TRIPATHI: 0,
     }
-    first_night_off = "Dr. Rashmi Sharma"
+    first_night_off = DR_RASHMI_SHARMA
     print("Generating schedule...")
     solution_maybe = generate_schedule(
         doctors=doctors,
