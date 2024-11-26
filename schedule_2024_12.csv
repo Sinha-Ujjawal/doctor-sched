@@ -1,0 +1,49 @@
+﻿date,week,ot_duty,morning,evening,night,night_off
+2024-12-01,Sun,Dr. Amit Tripathi,Dr. Sharmila,Dr. Sharmila,Dr. Amit Tripathi,Dr. Abhilasha Mishra
+2024-12-08,Sun,Dr. Abhilasha Mishra,Dr. Minakshi Mishra,Dr. Minakshi Mishra,Dr. Rashmi Sharma,Dr. Saumya Shukla
+2024-12-15,Sun,Dr. Saumya Shukla,Dr. Rashmi Sharma,Dr. Rashmi Sharma,Dr. Saumya Shukla,Dr. Minakshi Mishra
+2024-12-22,Sun,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Minakshi Mishra,Dr. Amit Tripathi,Dr. Saumya Shukla
+2024-12-29,Sun,Dr. Abhilasha Mishra,Dr. Madhuri Tripathi,Dr. Madhuri Tripathi,Dr. Sharmila,Dr. Saumya Shukla
+2024-12-02,Mon,Dr. Abhilasha Mishra,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Rashmi Sharma,Dr. Amit Tripathi
+2024-12-09,Mon,Dr. Abhilasha Mishra,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Saumya Shukla,Dr. Rashmi Sharma
+2024-12-16,Mon,Dr. Abhilasha Mishra,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Rashmi Sharma,Dr. Saumya Shukla
+2024-12-23,Mon,Dr. Abhilasha Mishra,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Rashmi Sharma,Dr. Amit Tripathi
+2024-12-30,Mon,Dr. Abhilasha Mishra,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Minakshi Mishra,Dr. Sharmila
+2024-12-03,Tue,Dr. Amit Tripathi,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Abhilasha Mishra,Dr. Rashmi Sharma
+2024-12-10,Tue,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Abhilasha Mishra,Dr. Saumya Shukla
+2024-12-17,Tue,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Sharmila,Dr. Rashmi Sharma
+2024-12-24,Tue,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Abhilasha Mishra,Dr. Rashmi Sharma
+2024-12-31,Tue,Dr. Amit Tripathi,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Rashmi Sharma,Dr. Minakshi Mishra
+2024-12-04,Wed,Dr. Saumya Shukla,Dr. Rashmi Sharma,Dr. Madhuri Tripathi,Dr. Minakshi Mishra,Dr. Abhilasha Mishra
+2024-12-11,Wed,Dr. Saumya Shukla,Dr. Rashmi Sharma,Dr. Madhuri Tripathi,Dr. Sharmila,Dr. Abhilasha Mishra
+2024-12-18,Wed,Dr. Saumya Shukla,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Amit Tripathi,Dr. Sharmila
+2024-12-25,Wed,Dr. Saumya Shukla,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Amit Tripathi,Dr. Abhilasha Mishra
+2024-12-05,Thu,Dr. Abhilasha Mishra,Dr. Rashmi Sharma,Dr. Madhuri Tripathi,Dr. Sharmila,Dr. Minakshi Mishra
+2024-12-12,Thu,Dr. Abhilasha Mishra,Dr. Rashmi Sharma,Dr. Madhuri Tripathi,Dr. Amit Tripathi,Dr. Sharmila
+2024-12-19,Thu,Dr. Abhilasha Mishra,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Rashmi Sharma,Dr. Amit Tripathi
+2024-12-26,Thu,Dr. Abhilasha Mishra,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Minakshi Mishra,Dr. Amit Tripathi
+2024-12-06,Fri,Dr. Saumya Shukla,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Minakshi Mishra,Dr. Sharmila
+2024-12-13,Fri,Dr. Saumya Shukla,Dr. Minakshi Mishra,Dr. Rashmi Sharma,Dr. Abhilasha Mishra,Dr. Amit Tripathi
+2024-12-20,Fri,Dr. Saumya Shukla,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Abhilasha Mishra,Dr. Rashmi Sharma
+2024-12-27,Fri,Dr. Saumya Shukla,Dr. Amit Tripathi,Dr. Madhuri Tripathi,Dr. Sharmila,Dr. Minakshi Mishra
+2024-12-07,Sat,Dr. Amit Tripathi,Dr. Sharmila,Dr. Madhuri Tripathi,Dr. Saumya Shukla,Dr. Minakshi Mishra
+2024-12-14,Sat,Dr. Saumya Shukla,Dr. Rashmi Sharma,Dr. Sharmila,Dr. Minakshi Mishra,Dr. Abhilasha Mishra
+2024-12-21,Sat,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Saumya Shukla,Dr. Abhilasha Mishra
+2024-12-28,Sat,Dr. Amit Tripathi,Dr. Minakshi Mishra,Dr. Madhuri Tripathi,Dr. Saumya Shukla,Dr. Sharmila
+,,,,,,
+doctor,ot_duty,morning,evening,night,,
+Dr. Rashmi Sharma,0,6,2,6,,
+Dr. Minakshi Mishra,0,10,2,5,,
+Dr. Abhilasha Mishra,11,0,0,5,,
+Dr. Amit Tripathi,10,6,0,5,,
+Dr. Sharmila,0,8,2,5,,
+Dr. Saumya Shukla,10,0,0,5,,
+Dr. Madhuri Tripathi,0,1,25,0,,
+Total,31,31,31,31,,
+,,,,,,
+,,,,,,
+"Dr Minakshi MISHRA is not available on 1, 2, 3, and 31",,,,,,
+"Dr Rashmi Sharma is not available on 25, 26, 27, 28, 29 and 30",,,,,,
+"Dr Madhuri Tripathi is not available on 13, 14 and 15",,,,,,
+"Dr Amit Tripathi is not available on 13, 14 and 15",,,,,,
+"Dr Saumya Shukla is not available on 29, 30 and 31",,,,,,

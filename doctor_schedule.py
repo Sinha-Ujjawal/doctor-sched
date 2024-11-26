@@ -49,8 +49,9 @@ def generate_schedule(
     first_night_off: Doctor,
     max_night_shifts: Dict[Doctor, int] = {},
     max_morning_shifts: Dict[Doctor, int] = {},
-    sat_ot_duty_rotation_size: int = -1,
-    sun_ot_duty_rotation_size: int = -1,
+    sat_ot_duty_rotation_size: Optional[int] = -1,
+    sun_ot_duty_rotation_size: Optional[int] = -1,
+    seed: int = 0,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     # removing unavailable shifts from fixed_shifts
     fixed_shifts = {**fixed_shifts}
@@ -69,16 +70,18 @@ def generate_schedule(
         week: [dt.day for dt in dates if dt.weekday() == week_num]
         for week_num, week in enumerate(weeks)
     }
-    if sat_ot_duty_rotation_size == -1:
-        sat_ot_duty_rotation_size = len(week_to_days["Sat"])
-    sat_ot_duty_rotation_size = clamp(
-        sat_ot_duty_rotation_size, 2, len(week_to_days["Sat"])
-    )
-    if sun_ot_duty_rotation_size == -1:
-        sun_ot_duty_rotation_size = len(week_to_days["Sun"])
-    sun_ot_duty_rotation_size = clamp(
-        sun_ot_duty_rotation_size, 2, len(week_to_days["Sun"])
-    )
+    if sat_ot_duty_rotation_size is not None:
+        if sat_ot_duty_rotation_size == -1:
+            sat_ot_duty_rotation_size = len(week_to_days["Sat"])
+        sat_ot_duty_rotation_size = clamp(
+            sat_ot_duty_rotation_size, 2, len(week_to_days["Sat"])
+        )
+    if sun_ot_duty_rotation_size is not None:
+        if sun_ot_duty_rotation_size == -1:
+            sun_ot_duty_rotation_size = len(week_to_days["Sun"])
+        sun_ot_duty_rotation_size = clamp(
+            sun_ot_duty_rotation_size, 2, len(week_to_days["Sun"])
+        )
 
     # Create the model
     model = cp_model.CpModel()
@@ -186,16 +189,19 @@ def generate_schedule(
 
     # OT Duty on Saturday and Sundays on rotation
     for d in range(num_doctors):
-        for window in sliding_window(week_to_days["Sat"], sat_ot_duty_rotation_size):
-            model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
-        for window in sliding_window(week_to_days["Sun"], sun_ot_duty_rotation_size):
-            model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
-            model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
-            model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
-            model.Add(sum(shift_vars[(d, day, "night")]   for day in window) <= 1)
+        if sat_ot_duty_rotation_size is not None:
+            for window in sliding_window(week_to_days["Sat"], sat_ot_duty_rotation_size):
+                model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
+        if sun_ot_duty_rotation_size is not None:
+            for window in sliding_window(week_to_days["Sun"], sun_ot_duty_rotation_size):
+                model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, "night")]   for day in window) <= 1)
 
     # Solve the model
     solver = cp_model.CpSolver()
+    solver.parameters.random_seed = seed
     status = solver.Solve(model)
 
     if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
