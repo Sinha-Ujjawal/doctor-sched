@@ -12,7 +12,6 @@ def main():
         DR_ABHILASHA_MISHRA,
         DR_AMIT_TRIPATHI,
         DR_RASHMI_SHARMA,
-        DR_SHARMILA,
         DR_SAUMYA_SHUKLA,
         DR_MADHURI_TRIPATHI,
     ]
@@ -28,7 +27,6 @@ def main():
     for dt in dates:
         day = dt.day
         unavailable_shifts[(DR_RASHMI_SHARMA  , day)] = ["ot_duty"]
-        unavailable_shifts[(DR_SHARMILA       , day)] = ["ot_duty"]
         unavailable_shifts[(DR_MINAKSHI_MISHRA, day)] = ["ot_duty"]
         if dt.weekday() == weeks.index("Sun"):
             unavailable_shifts[(DR_MADHURI_TRIPATHI, day)] = ["ot_duty", "night"]
@@ -57,6 +55,8 @@ def main():
             fixed_shifts[(DR_SAUMYA_SHUKLA, day)] = ["ot_duty"]
         if week != weeks.index("Sun"):
             fixed_shifts[(DR_MADHURI_TRIPATHI, day)] = ["evening"]
+        if day == 1:
+            fixed_shifts[(DR_RASHMI_SHARMA, day)] = ["night"]
     # for day in [1, 8, 15, 24]:
     #     amit_day = (DR_AMIT_TRIPATHI, day)
     #     if amit_day not in fixed_shifts:
@@ -65,29 +65,58 @@ def main():
     #         fixed_shifts[amit_day].append("ot_duty")
 
     max_night_shifts = {
-        DR_MINAKSHI_MISHRA  : 6,
-        DR_ABHILASHA_MISHRA : 5,
-        DR_AMIT_TRIPATHI    : 5,
-        DR_RASHMI_SHARMA    : 5,
-        DR_SHARMILA         : 5,
-        DR_SAUMYA_SHUKLA    : 5,
+        DR_MINAKSHI_MISHRA  : 7,
+        DR_ABHILASHA_MISHRA : 6,
+        DR_AMIT_TRIPATHI    : 6,
+        DR_RASHMI_SHARMA    : 6,
+        DR_SAUMYA_SHUKLA    : 6,
         DR_MADHURI_TRIPATHI : 0,
     }
     max_morning_shifts = {
         DR_ABHILASHA_MISHRA : 0,
         DR_SAUMYA_SHUKLA    : 0,
-        DR_MINAKSHI_MISHRA  : 8,
+        DR_MADHURI_TRIPATHI : 1,
+        DR_MINAKSHI_MISHRA  : 12,
         # DR_AMIT_TRIPATHI    : 8,
-        DR_RASHMI_SHARMA    : 8,
-        DR_SHARMILA         : 8,
-        DR_MADHURI_TRIPATHI : 0,
+        DR_RASHMI_SHARMA    : 13,
     }
     minmax_ot_duty_shifts = {
         DR_ABHILASHA_MISHRA : (10, 11),
         DR_AMIT_TRIPATHI    : (10, 11),
-        DR_SAUMYA_SHUKLA    : (10, 11),
+        DR_SAUMYA_SHUKLA    : (10, 10),
     }
-    first_night_off = DR_RASHMI_SHARMA
+    avoid_shift_collision = []
+    for dt in dates:
+        day = dt.day
+        week = dt.weekday()
+        if week == weeks.index("Sun"):
+            avoid_shift_collision.extend([
+                (
+                    DR_AMIT_TRIPATHI,
+                    "ot_duty",
+                    day,
+                    DR_MADHURI_TRIPATHI,
+                    "morning",
+                    day,
+                ),
+                (
+                    DR_AMIT_TRIPATHI,
+                    "ot_duty",
+                    day,
+                    DR_MADHURI_TRIPATHI,
+                    "evening",
+                    day,
+                ),
+                (
+                    DR_AMIT_TRIPATHI,
+                    "ot_duty",
+                    day,
+                    DR_MADHURI_TRIPATHI,
+                    "night",
+                    day,
+                ),
+            ])
+    first_night_off = DR_ABHILASHA_MISHRA
     print("Generating schedule...")
     solution_maybe = generate_schedule(
         doctors=all_doctors,
@@ -100,9 +129,10 @@ def main():
         max_morning_shifts=max_morning_shifts,
         minmax_ot_duty_shifts=minmax_ot_duty_shifts,
         wed_ot_duty_rotation_size=None,
-        sat_ot_duty_rotation_size=3,
+        sat_ot_duty_rotation_size=2,
         sun_ot_duty_rotation_size=3,
         same_sat_and_sun_ot_duty=True,
+        avoid_shift_collision=avoid_shift_collision,
     )
     if solution_maybe is not None:
         df_schedule, df_stats = solution_maybe

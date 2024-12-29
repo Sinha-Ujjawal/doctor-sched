@@ -54,6 +54,7 @@ def generate_schedule(
     sun_ot_duty_rotation_size: Optional[int] = -1,
     wed_ot_duty_rotation_size: Optional[int] = -1,
     same_sat_and_sun_ot_duty: bool = False,
+    avoid_shift_collision: List[Tuple[Doctor, Shift, Day, Doctor, Shift, Day]] = [],
     seed: int = 0,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     # removing unavailable shifts from fixed_shifts
@@ -216,7 +217,10 @@ def generate_schedule(
                 model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
         if sat_ot_duty_rotation_size is not None:
             for window in sliding_window(week_to_days["Sat"], sat_ot_duty_rotation_size):
-                model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, shift)]
+                              for day in window
+                              for shift in ["ot_duty", "night"]) <= 1)
         if sun_ot_duty_rotation_size is not None:
             for window in sliding_window(week_to_days["Sun"], sun_ot_duty_rotation_size):
                 model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
@@ -233,6 +237,15 @@ def generate_schedule(
                 model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
                     shift_vars[(d, sat, "ot_duty")]
                 )
+
+    for avoid_shift_spec in avoid_shift_collision:
+        # print(f"Avoiding shift collision for {avoid_shift_spec}")
+        doc1, shift1, day1, doc2, shift2, day2 = avoid_shift_spec
+        d1 = doctors.index(doc1)
+        d2 = doctors.index(doc2)
+        model.Add(shift_vars[(d2, day2, shift2)] == 0).OnlyEnforceIf(
+            shift_vars[(d1, day1, shift1)]
+        )
 
 
     # Solve the model
