@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict, Tuple, Callable
 from datetime import date, timedelta
 from collections import deque
 from itertools import islice
@@ -55,6 +55,7 @@ def generate_schedule(
     wed_ot_duty_rotation_size: Optional[int] = -1,
     same_sat_and_sun_ot_duty: bool = False,
     avoid_shift_collision: List[Tuple[Doctor, Shift, Day, Doctor, Shift, Day]] = [],
+    custom_constraints: Optional[Callable] = None,
     seed: int = 0,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     # removing unavailable shifts from fixed_shifts
@@ -247,6 +248,8 @@ def generate_schedule(
             shift_vars[(d1, day1, shift1)]
         )
 
+    if custom_constraints:
+        custom_constraints(model=model, shift_vars=shift_vars)
 
     # Solve the model
     solver = cp_model.CpSolver()
