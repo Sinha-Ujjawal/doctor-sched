@@ -56,6 +56,7 @@ def generate_schedule(
     same_sat_and_sun_ot_duty: bool = False,
     avoid_shift_collision: List[Tuple[Doctor, Shift, Day, Doctor, Shift, Day]] = [],
     custom_constraints: Optional[Callable] = None,
+    doctors_who_wants_do_more_shifts_per_day: Optional[List[Doctor]] = None,
     seed: int = 0,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     # removing unavailable shifts from fixed_shifts
@@ -120,7 +121,7 @@ def generate_schedule(
         if day in week_to_days["Mon"]
     }
 
-    # Each doctor can only work one shift per day, except for Sunday shift constraints
+    # Each doctor, except for those who choses can only work one shift per day (doctors_who_wants_do_more_shifts_per_day), except for Sunday shift constraints
     for dt in dates:
         day = dt.day
         next_day = day + 1
@@ -136,7 +137,8 @@ def generate_schedule(
                 model.Add(sum(shift_vars[(d, day, shift)] for shift in all_shifts) <= 2)
         else:
             for d in range(num_doctors):
-                model.Add(sum(shift_vars[(d, day, shift)] for shift in all_shifts) <= 1)
+                if doctors[d] not in (doctors_who_wants_do_more_shifts_per_day or []):
+                    model.Add(sum(shift_vars[(d, day, shift)] for shift in all_shifts) <= 1)
 
     # All shifts must have exactly one doctor assigned
     for dt in dates:

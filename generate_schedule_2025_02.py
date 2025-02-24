@@ -14,7 +14,7 @@ def main():
         DR_RASHMI_SHARMA,
         DR_SAUMYA_SHUKLA,
         DR_MADHURI_TRIPATHI,
-        DR_KRITI_GAUTAM,
+        DR_KRITIKA_PRASAD,
     ]
     dates = generate_month_dates(year, month)
     fixed_shifts = {}
@@ -30,7 +30,7 @@ def main():
         day = dt.day
         unavailable_shifts[(DR_RASHMI_SHARMA  , day)] = ["ot_duty"]
         unavailable_shifts[(DR_MINAKSHI_MISHRA, day)] = ["ot_duty"]
-        unavailable_shifts[(DR_KRITI_GAUTAM   , day)] = ["ot_duty"]
+        unavailable_shifts[(DR_KRITIKA_PRASAD   , day)] = ["ot_duty"]
         if dt.weekday() == weeks.index("Sun"):
             unavailable_shifts[(DR_MADHURI_TRIPATHI, day)] = ["ot_duty", "night"]
             unavailable_shifts[(DR_AMIT_TRIPATHI   , day)] = ["morning", "evening"]
@@ -103,12 +103,12 @@ def main():
         DR_AMIT_TRIPATHI    : 5,
         DR_RASHMI_SHARMA    : 5,
         DR_SAUMYA_SHUKLA    : 4,
-        DR_KRITI_GAUTAM     : 4,
+        DR_KRITIKA_PRASAD     : 4,
         DR_MADHURI_TRIPATHI : 0,
     }
     max_morning_shifts = {
         DR_MINAKSHI_MISHRA  : 7,
-        DR_KRITI_GAUTAM     : 8,
+        DR_KRITIKA_PRASAD     : 8,
         DR_SAUMYA_SHUKLA    : 0,
         DR_ABHILASHA_MISHRA : 0,
     }
