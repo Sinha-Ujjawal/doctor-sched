@@ -52,6 +52,7 @@ def generate_schedule(
     minmax_ot_duty_shifts: Dict[Doctor, Tuple[int, int]] = {},
     sat_ot_duty_rotation_size: Optional[int] = -1,
     sun_ot_duty_rotation_size: Optional[int] = -1,
+    sun_morning_evening_duty_rotation_size: Optional[int] = None,
     wed_ot_duty_rotation_size: Optional[int] = -1,
     same_sat_and_sun_ot_duty: bool = False,
     avoid_shift_collision: List[Tuple[Doctor, Shift, Day, Doctor, Shift, Day]] = [],
@@ -93,6 +94,12 @@ def generate_schedule(
             wed_ot_duty_rotation_size = len(week_to_days["Wed"])
         wed_ot_duty_rotation_size = clamp(
             wed_ot_duty_rotation_size, 2, len(week_to_days["Wed"])
+        )
+    if sun_morning_evening_duty_rotation_size is not None:
+        if sun_morning_evening_duty_rotation_size == -1:
+            sun_morning_evening_duty_rotation_size = len(week_to_days["Sun"])
+        sun_morning_evening_duty_rotation_size = clamp(
+            sun_morning_evening_duty_rotation_size, 2, len(week_to_days["Sun"])
         )
 
     # Create the model
@@ -239,6 +246,17 @@ def generate_schedule(
                 )
                 model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
                     shift_vars[(d, sat, "ot_duty")]
+                )
+
+    # Morning and Evening duty on Sundays on rotation
+    for d in range(num_doctors):
+        if sun_morning_evening_duty_rotation_size is not None:
+            for window in sliding_window(week_to_days["Sun"], sun_morning_evening_duty_rotation_size):
+                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1).OnlyEnforceIf(
+                    ~shift_vars[(d, sat, "ot_duty")]
+                )
+                model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1).OnlyEnforceIf(
+                    ~shift_vars[(d, sat, "ot_duty")]
                 )
 
     for avoid_shift_spec in avoid_shift_collision:
