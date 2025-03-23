@@ -252,12 +252,8 @@ def generate_schedule(
     for d in range(num_doctors):
         if sun_morning_evening_duty_rotation_size is not None:
             for window in sliding_window(week_to_days["Sun"], sun_morning_evening_duty_rotation_size):
-                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1).OnlyEnforceIf(
-                    ~shift_vars[(d, sat, "ot_duty")]
-                )
-                model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1).OnlyEnforceIf(
-                    ~shift_vars[(d, sat, "ot_duty")]
-                )
+                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
+                model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
 
     for avoid_shift_spec in avoid_shift_collision:
         # print(f"Avoiding shift collision for {avoid_shift_spec}")
