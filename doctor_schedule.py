@@ -46,8 +46,9 @@ def generate_schedule(
     month: int,
     fixed_shifts: Dict[Tuple[Doctor, Day], List[Shift]],
     unavailable_shifts: Dict[Tuple[Doctor, Day], List[Shift]],
-    first_night_off: Doctor,
+    first_night_off: Optional[Doctor],
     max_night_shifts: Dict[Doctor, int] = {},
+    max_evening_shifts: Dict[Doctor, int] = {},
     max_morning_shifts: Dict[Doctor, int] = {},
     minmax_ot_duty_shifts: Dict[Doctor, Tuple[int, int]] = {},
     sat_ot_duty_rotation_size: Optional[int] = -1,
@@ -119,8 +120,9 @@ def generate_schedule(
 
     # Constraints
     # First night off
-    fd = doctors.index(first_night_off)
-    model.Add(sum(shift_vars[(fd, 1, shift)] for shift in all_shifts) < 1)
+    if first_night_off is not None:
+        fd = doctors.index(first_night_off)
+        model.Add(sum(shift_vars[(fd, 1, shift)] for shift in all_shifts) < 1)
 
     monday_fixed_shifts = {
         (doctors.index(doctor), day)
@@ -189,6 +191,19 @@ def generate_schedule(
         model.Add(
             ot_duty_shifts_count[d]
             == sum(shift_vars[(d, dt.day, "ot_duty")] for dt in dates)
+        )
+
+    # Evening shift constraints
+    evening_shifts_count = {}
+    for doctor, max_evening_shift in max_evening_shifts.items():
+        d = doctors.index(doctor)
+        evening_shifts_count[d] = model.NewIntVar(
+            0, max_evening_shift, f"count_evening_shifts_{d}"
+        )
+        # Sum the evening shifts assigned to this doctor
+        model.Add(
+            evening_shifts_count[d]
+            == sum(shift_vars[(d, dt.day, "evening")] for dt in dates)
         )
 
     # Morning shift constraints
