@@ -181,16 +181,15 @@ def generate_schedule(
         )
 
     # Otduty shift constraints
-    ot_duty_shifts_count = {}
     for doctor, (min_ot_duty_shift, max_ot_duty_shift) in minmax_ot_duty_shifts.items():
         d = doctors.index(doctor)
-        ot_duty_shifts_count[d] = model.NewIntVar(
-            min_ot_duty_shift, max_ot_duty_shift, f"count_ot_duty_shifts_{d}"
-        )
         # Sum the ot_duty shifts assigned to this doctor
+        sum_ot_duties = sum(shift_vars[(d, dt.day, "ot_duty")] for dt in dates)
         model.Add(
-            ot_duty_shifts_count[d]
-            == sum(shift_vars[(d, dt.day, "ot_duty")] for dt in dates)
+            sum_ot_duties >= min_ot_duty_shift
+        )
+        model.Add(
+            sum_ot_duties <= max_ot_duty_shift
         )
 
     # Evening shift constraints
@@ -255,13 +254,15 @@ def generate_schedule(
     
     if same_sat_and_sun_ot_duty:
         for d in range(num_doctors):
-            for sat, sun in zip(week_to_days["Sat"], week_to_days["Sun"]):
+            for sat in week_to_days["Sat"]:
+                sun = sat + 1
+                if sun not in week_to_days["Sun"]: continue
                 model.Add(shift_vars[(d, sat, "ot_duty")] == 1).OnlyEnforceIf(
                     shift_vars[(d, sun, "ot_duty")]
                 )
-                model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
-                    shift_vars[(d, sat, "ot_duty")]
-                )
+                # model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
+                #     shift_vars[(d, sat, "ot_duty")]
+                # )
 
     # Morning and Evening duty on Sundays on rotation
     for d in range(num_doctors):
@@ -315,7 +316,8 @@ def generate_schedule(
         df_schedule.sort_values(["day"], inplace=True)
         df_schedule["night_off"] = df_schedule["night"].shift(1)
         df_schedule.loc[df_schedule["day"] == 1, "night_off"] = first_night_off
-        df_schedule.sort_values(["week_num", "date"], inplace=True)
+        # df_schedule.sort_values(["week_num", "date"], inplace=True)
+        df_schedule.sort_values(["date"], inplace=True)
         df_schedule.drop(columns=["week_num", "day"], inplace=True)
         df_stats = pd.DataFrame(
             [
