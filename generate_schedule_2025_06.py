@@ -21,8 +21,13 @@ def main():
     fixed_shifts = {}
     unavailable_shifts = {}
     leaves = [
-        (DR_MINAKSHI_MISHRA, [14, 15, 16, 30]),
-        (DR_KRITIKA_PRASAD , [14, 15, 16]),
+        (DR_MINAKSHI_MISHRA , [14, 15, 16, 30]),
+        (DR_KRITIKA_PRASAD  , [14, 15, 16]),
+        (DR_ASHOK_KUMAR     , [3, 4, 5, 6]),
+        (DR_AMIT_TRIPATHI   , [22, 23, 24]),
+        (DR_MADHURI_TRIPATHI, [22, 23, 24]),
+        (DR_RASHMI_SHARMA   , [1, 2, 3, 4, 5, 6, 7]),
+        (DR_ABHILASHA_MISHRA, [1, 2, 3, 4, 5]),
     ]
     for dt in dates:
         day = dt.day

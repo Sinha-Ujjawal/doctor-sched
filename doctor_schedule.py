@@ -260,9 +260,9 @@ def generate_schedule(
                 model.Add(shift_vars[(d, sat, "ot_duty")] == 1).OnlyEnforceIf(
                     shift_vars[(d, sun, "ot_duty")]
                 )
-                # model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
-                #     shift_vars[(d, sat, "ot_duty")]
-                # )
+                model.Add(shift_vars[(d, sun, "ot_duty")] == 1).OnlyEnforceIf(
+                    shift_vars[(d, sat, "ot_duty")]
+                )
 
     # Morning and Evening duty on Sundays on rotation
     for d in range(num_doctors):
