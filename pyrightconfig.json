@@ -1,0 +1,13 @@
+{
+  "include": [
+    "."
+  ],
+
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__"
+  ],
+
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": false
+}

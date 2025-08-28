@@ -1,11 +1,10 @@
-from typing import List, Optional, Dict, Tuple, Callable
-from datetime import date, timedelta
 from collections import deque
+from datetime import date, timedelta
 from itertools import islice
+from typing import Callable, Dict, List, Optional, Tuple
 
-from ortools.sat.python import cp_model
 import pandas as pd
-
+from ortools.sat.python import cp_model
 
 Doctor = str
 Shift = str
@@ -147,7 +146,9 @@ def generate_schedule(
         else:
             for d in range(num_doctors):
                 if doctors[d] not in (doctors_who_wants_do_more_shifts_per_day or []):
-                    model.Add(sum(shift_vars[(d, day, shift)] for shift in all_shifts) <= 1)
+                    model.Add(
+                        sum(shift_vars[(d, day, shift)] for shift in all_shifts) <= 1
+                    )
 
     # All shifts must have exactly one doctor assigned
     for dt in dates:
@@ -185,12 +186,8 @@ def generate_schedule(
         d = doctors.index(doctor)
         # Sum the ot_duty shifts assigned to this doctor
         sum_ot_duties = sum(shift_vars[(d, dt.day, "ot_duty")] for dt in dates)
-        model.Add(
-            sum_ot_duties >= min_ot_duty_shift
-        )
-        model.Add(
-            sum_ot_duties <= max_ot_duty_shift
-        )
+        model.Add(sum_ot_duties >= min_ot_duty_shift)
+        model.Add(sum_ot_duties <= max_ot_duty_shift)
 
     # Evening shift constraints
     evening_shifts_count = {}
@@ -237,26 +234,38 @@ def generate_schedule(
     # OT Duty on Saturday and Sundays on rotation
     for d in range(num_doctors):
         if wed_ot_duty_rotation_size is not None:
-            for window in sliding_window(week_to_days["Wed"], wed_ot_duty_rotation_size):
+            for window in sliding_window(
+                week_to_days["Wed"], wed_ot_duty_rotation_size
+            ):
                 model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
         if sat_ot_duty_rotation_size is not None:
-            for window in sliding_window(week_to_days["Sat"], sat_ot_duty_rotation_size):
+            for window in sliding_window(
+                week_to_days["Sat"], sat_ot_duty_rotation_size
+            ):
                 model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
-                model.Add(sum(shift_vars[(d, day, shift)]
-                              for day in window
-                              for shift in ["ot_duty", "night"]) <= 1)
+                model.Add(
+                    sum(
+                        shift_vars[(d, day, shift)]
+                        for day in window
+                        for shift in ["ot_duty", "night"]
+                    )
+                    <= 1
+                )
         if sun_ot_duty_rotation_size is not None:
-            for window in sliding_window(week_to_days["Sun"], sun_ot_duty_rotation_size):
+            for window in sliding_window(
+                week_to_days["Sun"], sun_ot_duty_rotation_size
+            ):
                 model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
                 model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
                 model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
-                model.Add(sum(shift_vars[(d, day, "night")]   for day in window) <= 1)
-    
+                model.Add(sum(shift_vars[(d, day, "night")] for day in window) <= 1)
+
     if same_sat_and_sun_ot_duty:
         for d in range(num_doctors):
             for sat in week_to_days["Sat"]:
                 sun = sat + 1
-                if sun not in week_to_days["Sun"]: continue
+                if sun not in week_to_days["Sun"]:
+                    continue
                 model.Add(shift_vars[(d, sat, "ot_duty")] == 1).OnlyEnforceIf(
                     shift_vars[(d, sun, "ot_duty")]
                 )
@@ -267,7 +276,9 @@ def generate_schedule(
     # Morning and Evening duty on Sundays on rotation
     for d in range(num_doctors):
         if sun_morning_evening_duty_rotation_size is not None:
-            for window in sliding_window(week_to_days["Sun"], sun_morning_evening_duty_rotation_size):
+            for window in sliding_window(
+                week_to_days["Sun"], sun_morning_evening_duty_rotation_size
+            ):
                 model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
                 model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
 
@@ -324,11 +335,20 @@ def generate_schedule(
                 [
                     doctor,
                     *[(df_schedule[shift] == doctor).sum() for shift in all_shifts],
-                    "|".join(map(str, sorted({
-                        (dt.day, weeks[dt.weekday()], shift)
-                        for shift in all_shifts
-                        for dt in df_schedule[df_schedule[shift] == doctor]["date"]
-                    })))
+                    "|".join(
+                        map(
+                            str,
+                            sorted(
+                                {
+                                    (dt.day, weeks[dt.weekday()], shift)
+                                    for shift in all_shifts
+                                    for dt in df_schedule[df_schedule[shift] == doctor][
+                                        "date"
+                                    ]
+                                }
+                            ),
+                        )
+                    ),
                 ]
                 for doctor in doctors
             ],
