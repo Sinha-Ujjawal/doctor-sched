@@ -9,3 +9,8 @@ DR_MADHURI_TRIPATHI = "Dr. Madhuri Tripathi"
 DR_KRITIKA_PRASAD = "Dr. Kritika Prasad"
 DR_ASHOK_KUMAR = "Dr. Ashok Kumar"
 DR_HITESH_KUREEL = "Dr. Hitesh Kureel"
+
+DR_SUNITA_OJHA = "Dr. Sunita Ojha"
+"Dr. Deepak Singh"
+"Dr. Rajat Gupta"
+"Dr. Vikas Verma"
