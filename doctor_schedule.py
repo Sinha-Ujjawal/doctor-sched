@@ -47,6 +47,7 @@ def generate_schedule(
     unavailable_shifts: Dict[Tuple[Doctor, Day], List[Shift]],
     first_night_off: Optional[Doctor],
     max_night_shifts: Dict[Doctor, int] = {},
+    minmax_night_shifts: Dict[Doctor, Tuple[int, int]] = {},
     max_evening_shifts: Dict[Doctor, int] = {},
     max_morning_shifts: Dict[Doctor, int] = {},
     minmax_ot_duty_shifts: Dict[Doctor, Tuple[int, int]] = {},
@@ -59,6 +60,7 @@ def generate_schedule(
     custom_constraints: Optional[Callable] = None,
     doctors_who_wants_do_more_shifts_per_day: Optional[List[Doctor]] = None,
     seed: int = 0,
+    sun_same_doctor_ot_and_night: bool = True,
 ) -> Optional[Tuple[pd.DataFrame, pd.DataFrame]]:
     # removing unavailable shifts from fixed_shifts
     fixed_shifts = {**fixed_shifts}
@@ -136,9 +138,11 @@ def generate_schedule(
         if dt.weekday() == weeks.index("Sun"):
             for d in range(num_doctors):
                 if (d, next_day) not in monday_fixed_shifts:
-                    model.Add(
-                        shift_vars[(d, day, "ot_duty")] == shift_vars[(d, day, "night")]
-                    ).OnlyEnforceIf(shift_vars[(d, day, "ot_duty")])
+                    if sun_same_doctor_ot_and_night:
+                        model.Add(
+                            shift_vars[(d, day, "ot_duty")]
+                            == shift_vars[(d, day, "night")]
+                        ).OnlyEnforceIf(shift_vars[(d, day, "ot_duty")])
                 model.Add(
                     shift_vars[(d, day, "morning")] == shift_vars[(d, day, "evening")]
                 ).OnlyEnforceIf(shift_vars[(d, day, "morning")])
@@ -180,6 +184,14 @@ def generate_schedule(
             night_shifts_count[d]
             == sum(shift_vars[(d, dt.day, "night")] for dt in dates)
         )
+
+    # Night Min-Max shift constraints
+    for doctor, (min_night_shift, max_night_shift) in minmax_night_shifts.items():
+        d = doctors.index(doctor)
+        # Sum the night shifts assigned to this doctor
+        sum_duties = sum(shift_vars[(d, dt.day, "night")] for dt in dates)
+        model.Add(sum_duties >= min_night_shift)
+        model.Add(sum_duties <= max_night_shift)
 
     # Otduty shift constraints
     for doctor, (min_ot_duty_shift, max_ot_duty_shift) in minmax_ot_duty_shifts.items():
@@ -255,10 +267,27 @@ def generate_schedule(
             for window in sliding_window(
                 week_to_days["Sun"], sun_ot_duty_rotation_size
             ):
-                model.Add(sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1)
-                model.Add(sum(shift_vars[(d, day, "morning")] for day in window) <= 1)
-                model.Add(sum(shift_vars[(d, day, "evening")] for day in window) <= 1)
-                model.Add(sum(shift_vars[(d, day, "night")] for day in window) <= 1)
+                if sun_same_doctor_ot_and_night:
+                    model.Add(
+                        sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1
+                    )
+                    model.Add(
+                        sum(shift_vars[(d, day, "morning")] for day in window) <= 1
+                    )
+                    model.Add(
+                        sum(shift_vars[(d, day, "evening")] for day in window) <= 1
+                    )
+                    model.Add(sum(shift_vars[(d, day, "night")] for day in window) <= 1)
+                else:
+                    model.Add(
+                        sum(shift_vars[(d, day, "ot_duty")] for day in window) <= 1
+                    )
+                    model.Add(
+                        sum(shift_vars[(d, day, "morning")] for day in window) <= 1
+                    )
+                    model.Add(
+                        sum(shift_vars[(d, day, "evening")] for day in window) <= 1
+                    )
 
     if same_sat_and_sun_ot_duty:
         for d in range(num_doctors):
