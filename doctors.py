@@ -12,6 +12,7 @@ DR_HITESH_KUREEL = "Dr. Hitesh Kureel"
 
 DR_SUNITA_OJHA = "Dr. Sunita Ojha"
 DR_DEEPARK_SINGH = "Dr. Deepak Singh"
+DR_AKASHDEEP_GUPTA = "Dr. Akashdeep Gupta"
 DR_RAJAT_GUPTA = "Dr. Rajat Gupta"
 DR_VIKAS_VERMA = "Dr. Vikas Verma"
 DR_ASHISH_GUPTA = "Dr. Ashish Gupta"
