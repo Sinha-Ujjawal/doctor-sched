@@ -50,6 +50,7 @@ def generate_schedule(
     minmax_night_shifts: Dict[Doctor, Tuple[int, int]] = {},
     max_evening_shifts: Dict[Doctor, int] = {},
     minmax_evening_shifts: Dict[Doctor, Tuple[int, int]] = {},
+    minmax_morning_shifts: Dict[Doctor, Tuple[int, int]] = {},
     max_morning_shifts: Dict[Doctor, int] = {},
     minmax_ot_duty_shifts: Dict[Doctor, Tuple[int, int]] = {},
     sat_ot_duty_rotation_size: Optional[int] = -1,
@@ -235,6 +236,14 @@ def generate_schedule(
             morning_shifts_count[d]
             == sum(shift_vars[(d, dt.day, "morning")] for dt in dates)
         )
+
+    # Morning Min-Max shift constraints
+    for doctor, (min_morning_shift, max_morning_shift) in minmax_morning_shifts.items():
+        d = doctors.index(doctor)
+        # Sum the morning shifts assigned to this doctor
+        sum_duties = sum(shift_vars[(d, dt.day, "morning")] for dt in dates)
+        model.Add(sum_duties >= min_morning_shift)
+        model.Add(sum_duties <= max_morning_shift)
 
     # Night off logic: if a doctor works night shift, they cannot work the next day
     for d in range(num_doctors):
