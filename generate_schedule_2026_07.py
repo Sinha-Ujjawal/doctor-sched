@@ -16,7 +16,6 @@ from doctors import (
     DR_AKASHDEEP_GUPTA,
     DR_AMIT_TRIPATHI,
     DR_ASHISH_GUPTA,
-    DR_ASHOK_KUMAR,
     DR_HITESH_KUREEL,
     DR_KRITIKA_PRASAD,
     DR_MINAKSHI_MISHRA,
@@ -29,8 +28,21 @@ from doctors import (
 
 
 def main():
+    """
+    NOTES:
+    LEAVES:
+      DR_MINAKSHI_MISHRA 3,4,5,6,25,26
+      DR_RAJAT_GUPTA     27,28,29,30
+      DR_ASHISH_GUPTA    leave for whole month
+      DR_ABHILASHA_MISHRA leave after 10th
+    FIRST NIGHT OFF: DR_RASHMI_SHARMA
+    OT: 1-9 DR_ABHILASHA_MISHRA, DR_AMIT_TRIPATHI, DR_SAUMYA_SHUKLA by rotation
+        after 10th DR_AMIT_TRIPATHI and DR_SAUMYA_SHUKLA alternate
+    DR_RASHMI_SHARMA prefers Friday night 3,31
+    """
+
     year = 2026
-    month = 6
+    month = 7
     all_doctors = [
         DR_MINAKSHI_MISHRA,
         DR_ABHILASHA_MISHRA,
@@ -38,7 +50,6 @@ def main():
         DR_RASHMI_SHARMA,
         DR_SAUMYA_SHUKLA,
         DR_KRITIKA_PRASAD,
-        DR_ASHOK_KUMAR,
         DR_HITESH_KUREEL,
         DR_SUNITA_OJHA,
         DR_AKASHDEEP_GUPTA,
@@ -77,62 +88,61 @@ def main():
             unavailable_shifts[(DR_AMIT_TRIPATHI, day)] = ["morning", "evening"]
             unavailable_shifts[(DR_ABHILASHA_MISHRA, day)] = ["morning", "evening"]
             unavailable_shifts[(DR_SAUMYA_SHUKLA, day)] = ["morning", "evening"]
-            unavailable_shifts[(DR_ASHOK_KUMAR, day)] = ["morning", "evening"]
-            # unavailable_shifts[(DR_ASHOK_KUMAR, day)] = all_shifts
         if dt.weekday() == weeks.index("Wed"):
             unavailable_shifts[(DR_ABHILASHA_MISHRA, day)] = ["night"]
 
     def range_list(lo: int, hi: int) -> list[int]:
         return list(range(lo, hi + 1))
 
-    # DR_ASHISH_GUPTA:
-    #   Leaves: 4, 5, 6, 11, 12, 24-30
-    # DR_RASHMI_SHARMA:
-    #   Leaves: 5-11, 20, 21, 22
-    # DR_KRITIKA_PRASAD:
-    #   Leaves: 2, 3, 13, 14
-    # DR_MINAKSHI_MISHRA:
-    #   Leaves: 19, 20, 21
-    # DR_AMIT_TRIPATHI:
-    #   Leaves: 22, 23, 24
-    # DR_SAUMYA_SHUKLA:
-    #   Leaves: all month leave
     unofficial_leaves: list[tuple[str, list[int]]] = [
-        (DR_ASHISH_GUPTA, [4, 5, 6, 11, 12, *range_list(24, 30)]),
-        (DR_RASHMI_SHARMA, [*range_list(5, 11), 20, 21, 22]),
-        (DR_KRITIKA_PRASAD, [2, 3, 13, 14]),
-        (DR_MINAKSHI_MISHRA, [19, 20, 21]),
-        (DR_AMIT_TRIPATHI, [22, 23, 24]),
-        (DR_SAUMYA_SHUKLA, range_list(1, 30)),
+        (DR_MINAKSHI_MISHRA, [3, 4, 5, 6, 25, 26]),
+        (DR_RAJAT_GUPTA, [27, 28, 29, 30]),
+        (DR_ASHISH_GUPTA, range_list(1, 31)),
+        (DR_ABHILASHA_MISHRA, range_list(10, 31)),
     ]
     for doctor, days in [*leaves, *unofficial_leaves]:
         for day in days:
             unavailable_shifts[(doctor, day)] = all_shifts
-    sunday_ot_duty_rotation_order = [
-        DR_ABHILASHA_MISHRA,
-        DR_ASHOK_KUMAR,
-        DR_AMIT_TRIPATHI,
-    ]
-    sunday_ot_duty_rotation_start = 0
+    # sunday_ot_duty_rotation_order = [
+    #     DR_ABHILASHA_MISHRA,
+    #     DR_AMIT_TRIPATHI,
+    # ]
+    # sunday_ot_duty_rotation_start = 0
+
     sunday_morning_evening_duty_rotation_order = [
+        DR_KRITIKA_PRASAD,  # 5
+        DR_MINAKSHI_MISHRA,  # 12
+        DR_RASHMI_SHARMA,  # 19
+        DR_HITESH_KUREEL,  # 26
         DR_AKASHDEEP_GUPTA,
         DR_RAJAT_GUPTA,
         DR_VIKAS_VERMA,
-        DR_HITESH_KUREEL,
+        # DR_ASHISH_GUPTA,
     ]
     sunday_morning_evening_duty_rotation_start = 0
+
+    sunday_night_duty_rotation_order = [
+        DR_HITESH_KUREEL,  # 5
+        DR_KRITIKA_PRASAD,  # 12
+        DR_MINAKSHI_MISHRA,  # 19
+        DR_RASHMI_SHARMA,  # 26
+        DR_AKASHDEEP_GUPTA,
+        DR_RAJAT_GUPTA,
+        DR_VIKAS_VERMA,
+        # DR_ASHISH_GUPTA,
+    ]
+    sunday_night_duty_rotation_start = 0
+
     for dt in dates:
         day = dt.day
         week = dt.weekday()
         if week == weeks.index("Sun"):
-            doc = sunday_ot_duty_rotation_order[sunday_ot_duty_rotation_start]
-            fixed_shifts[(doc, day)] = ["ot_duty"]
-            sunday_ot_duty_rotation_start = (sunday_ot_duty_rotation_start + 1) % len(
-                sunday_ot_duty_rotation_order
-            )
+            # doc = sunday_ot_duty_rotation_order[sunday_ot_duty_rotation_start]
+            # fixed_shifts[(doc, day)] = ["ot_duty"]
+            # sunday_ot_duty_rotation_start = (sunday_ot_duty_rotation_start + 1) % len(
+            #     sunday_ot_duty_rotation_order
+            # )
 
-            # Fixed Morning and Evening Duty in order
-            # Person doing Morning and Evening Duty in next sunday, will do the night of current sunday
             doc = sunday_morning_evening_duty_rotation_order[
                 sunday_morning_evening_duty_rotation_start
             ]
@@ -140,166 +150,139 @@ def main():
             sunday_morning_evening_duty_rotation_start = (
                 sunday_morning_evening_duty_rotation_start + 1
             ) % len(sunday_morning_evening_duty_rotation_order)
-            doc = sunday_morning_evening_duty_rotation_order[
-                sunday_morning_evening_duty_rotation_start
-            ]
+
+            doc = sunday_night_duty_rotation_order[sunday_night_duty_rotation_start]
             fixed_shifts[(doc, day)] = ["night"]
+            sunday_night_duty_rotation_start = (
+                sunday_night_duty_rotation_start + 1
+            ) % len(sunday_night_duty_rotation_order)
 
-        if week in (weeks.index("Mon"),):
-            fixed_shifts[(DR_ASHOK_KUMAR, day)] = ["ot_duty"]
-        if week in (weeks.index("Tue"),):
-            fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
-        if week in (weeks.index("Wed"),):
-            fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty"]
-        if week in (weeks.index("Thu"),):
-            fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty", "night"]
-            # fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty"]
-        if week in (weeks.index("Fri"),):
-            fixed_shifts[(DR_ASHOK_KUMAR, day)] = ["ot_duty"]
-        if week in (weeks.index("Sat"),):
-            fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
+        # if week in (weeks.index("Tue"),):
+        #     fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
+        # if week in (weeks.index("Wed"),):
+        #     fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty"]
+        # if week in (weeks.index("Thu"),):
+        #     fixed_shifts[(DR_ABHILASHA_MISHRA, day)] = ["ot_duty", "night"]
+        # if week in (weeks.index("Sat"),):
+        #     fixed_shifts[(DR_AMIT_TRIPATHI, day)] = ["ot_duty"]
 
-    # DR_RASHMI_SHARMA:
-    #   Fixed:
-    #     4th Morning
-    #     19th Morning
-    # DR_KRITIKA_PRASAD:
-    #   Fixed:
-    #     1, 12 Morning duty
-    #     4th Evening
-    #     15th Night
-    # DR_ASHOK_KUMAR:
-    #     23 OT Duty
-    # DR_AMIT_TRIPATHI
-    #     26th OT Duty
-    fixed_shifts[(DR_RASHMI_SHARMA, 4)] = ["morning"]
-    fixed_shifts[(DR_RASHMI_SHARMA, 19)] = ["morning"]
-    fixed_shifts[(DR_KRITIKA_PRASAD, 1)] = ["morning"]
-    fixed_shifts[(DR_KRITIKA_PRASAD, 12)] = ["morning"]
-    fixed_shifts[(DR_KRITIKA_PRASAD, 4)] = ["evening"]
-    fixed_shifts[(DR_KRITIKA_PRASAD, 15)] = ["night"]
-    del fixed_shifts[(DR_AMIT_TRIPATHI, 23)]
-    fixed_shifts[(DR_ASHOK_KUMAR, 23)] = ["ot_duty"]
-    del fixed_shifts[(DR_ASHOK_KUMAR, 26)]
-    fixed_shifts[(DR_AMIT_TRIPATHI, 26)] = ["ot_duty"]
+    fixed_shifts[(DR_RASHMI_SHARMA, 3)] = ["night"]
+    fixed_shifts[(DR_RASHMI_SHARMA, 31)] = ["night"]
+
+    ot_duty_fixed_list = [
+        DR_SAUMYA_SHUKLA,
+        DR_ABHILASHA_MISHRA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_ABHILASHA_MISHRA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_ABHILASHA_MISHRA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+        DR_SAUMYA_SHUKLA,
+        DR_AMIT_TRIPATHI,
+    ]
+
+    assert len(ot_duty_fixed_list) == 31
+
+    for day, doc in enumerate(ot_duty_fixed_list, 1):
+        fixed_shifts[(doc, day)] = ["ot_duty"]
 
     def my_custom_constraints(model, shift_vars):
-        # # DR_ASHOK_KUMAR will do ot-duty with night on same day
-        # DR_ASHOK_KUMAR_INDEX = all_doctors.index(DR_ASHOK_KUMAR)
+        return
+        # # DR_ABHILASHA_MISHRA will do ot-duty with night on same day on thursday only
+        # DR_ABHILASHA_MISHRA_INDEX = all_doctors.index(DR_ABHILASHA_MISHRA)
+        # # model.Add(sum(
+        # #     shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "night")]
+        # #     for dt in dates
+        # #     if dt.weekday() == weeks.index("Thu")
+        # # ) >= 1)
         # for dt in dates:
         #     week = dt.weekday()
-        #     day = dt.day
-        #     if week == weeks.index("Mon") and day in (2, 16):
+        #     if week in (weeks.index("Thu"),):
         #         model.Add(
-        #             shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "night")] == 1
-        #         ).OnlyEnforceIf(shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "ot_duty")])
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "night")] == 1
+        #         ).OnlyEnforceIf(
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
+        #         )
         #         model.Add(
-        #             shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "morning")] == 0
-        #         ).OnlyEnforceIf(shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "ot_duty")])
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "morning")] == 0
+        #         ).OnlyEnforceIf(
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
+        #         )
         #         model.Add(
-        #             shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "evening")] == 0
-        #         ).OnlyEnforceIf(shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, "ot_duty")])
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "evening")] == 0
+        #         ).OnlyEnforceIf(
+        #             shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
+        #         )
         #     elif week != weeks.index("Sun"):
         #         model.Add(
         #             sum(
-        #                 shift_vars[(DR_ASHOK_KUMAR_INDEX, dt.day, shift)]
+        #                 shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, shift)]
         #                 for shift in all_shifts
         #             )
         #             <= 1
         #         )
 
-        # # EMO Doctor who is doing Friday night is supposed to do morning and evening on coming Sunday.
-        # for doc_idx, doc in enumerate(all_doctors):
-        #     if doc not in emos:
-        #         continue
-        #     for dt in dates:
-        #         week = dt.weekday()
-        #         day = dt.day
-        #         day_plus_2 = day + 2
-        #         if week == weeks.index("Fri") and day_plus_2 <= len(dates):
-        #             model.Add(
-        #                 shift_vars[(doc_idx, day_plus_2, "morning")] == 1
-        #             ).OnlyEnforceIf(shift_vars[(doc_idx, day, "night")])
-        #             model.Add(
-        #                 shift_vars[(doc_idx, day_plus_2, "evening")] == 1
-        #             ).OnlyEnforceIf(shift_vars[(doc_idx, day, "night")])
-
-        # DR_ABHILASHA_MISHRA will do ot-duty with night on same day on thursday only
-        DR_ABHILASHA_MISHRA_INDEX = all_doctors.index(DR_ABHILASHA_MISHRA)
-        # model.Add(sum(
-        #     shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "night")]
-        #     for dt in dates
-        #     if dt.weekday() == weeks.index("Thu")
-        # ) >= 1)
-        for dt in dates:
-            week = dt.weekday()
-            if week in (weeks.index("Thu"),):
-                model.Add(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "night")] == 1
-                ).OnlyEnforceIf(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
-                )
-                model.Add(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "morning")] == 0
-                ).OnlyEnforceIf(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
-                )
-                model.Add(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "evening")] == 0
-                ).OnlyEnforceIf(
-                    shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, "ot_duty")]
-                )
-            elif week != weeks.index("Sun"):
-                model.Add(
-                    sum(
-                        shift_vars[(DR_ABHILASHA_MISHRA_INDEX, dt.day, shift)]
-                        for shift in all_shifts
-                    )
-                    <= 1
-                )
-
     minmax_night_shifts = {
         # EMOs
         DR_SUNITA_OJHA: (0, 0),
-        DR_KRITIKA_PRASAD: (3, 3),
-        DR_HITESH_KUREEL: (3, 4),
-        DR_RAJAT_GUPTA: (3, 4),
-        DR_AKASHDEEP_GUPTA: (3, 3),
-        DR_VIKAS_VERMA: (3, 3),
-        DR_ASHISH_GUPTA: (3, 3),
+        DR_KRITIKA_PRASAD: (3, 5),
+        DR_HITESH_KUREEL: (3, 5),
+        DR_RAJAT_GUPTA: (3, 5),
+        DR_AKASHDEEP_GUPTA: (3, 5),
+        DR_VIKAS_VERMA: (3, 5),
+        DR_ASHISH_GUPTA: (0, 0),
         # Senior EMOs
         DR_RASHMI_SHARMA: (3, 3),
         DR_MINAKSHI_MISHRA: (3, 3),
         # Surgeons
-        DR_ABHILASHA_MISHRA: (4, 4),
+        DR_ABHILASHA_MISHRA: (0, 0),
         DR_SAUMYA_SHUKLA: (0, 0),
         DR_AMIT_TRIPATHI: (0, 0),
-        DR_ASHOK_KUMAR: (0, 0),
     }
     minmax_evening_shifts: dict[Doctor, tuple[int, int]] = {}
     for doc in all_doctors:
-        if doc not in emos or doc == DR_SUNITA_OJHA:
+        if doc not in emos or doc in (DR_SUNITA_OJHA, DR_ASHISH_GUPTA):
             minmax_evening_shifts[doc] = (0, 0)
         elif doc in emos:
-            minmax_evening_shifts[doc] = (4, 4)
+            minmax_evening_shifts[doc] = (4, 5)
     minmax_morning_shifts = {}
     for doc in all_doctors:
         if doc not in emos:
             minmax_morning_shifts[doc] = [0, 0]
-        elif doc == DR_SUNITA_OJHA:
+        elif doc in (DR_SUNITA_OJHA, DR_ASHISH_GUPTA):
             minmax_morning_shifts[doc] = [0, 0]
         else:
-            minmax_morning_shifts[doc] = [4, 4]
+            minmax_morning_shifts[doc] = [4, 5]
     minmax_ot_duty_shifts = {
-        # DR_ASHOK_KUMAR: (10, 10),
-        # DR_AMIT_TRIPATHI: (10, 10),
-        # DR_ABHILASHA_MISHRA: (10, 10),
-        # DR_SAUMYA_SHUKLA: (0, 0),
+        # DR_AMIT_TRIPATHI: (4, 15),
+        # DR_ABHILASHA_MISHRA: (4, 15),
+        # DR_SAUMYA_SHUKLA: (4, 15),
     }
     avoid_shift_collision = []
     for dt in dates:
         day = dt.day
-        week = dt.weekday()
         avoid_shift_collision.extend(
             [
                 (
@@ -352,7 +335,7 @@ def main():
                 ),
             ]
         )
-    first_night_off = DR_RAJAT_GUPTA
+    first_night_off = DR_RASHMI_SHARMA
     print("Generating schedule...")
     solution_maybe = generate_schedule(
         doctors=all_doctors,
@@ -372,7 +355,7 @@ def main():
         sun_morning_evening_duty_rotation_size=4,
         avoid_shift_collision=avoid_shift_collision,
         custom_constraints=my_custom_constraints,
-        doctors_who_wants_do_more_shifts_per_day=[DR_ABHILASHA_MISHRA],
+        # doctors_who_wants_do_more_shifts_per_day=[DR_ABHILASHA_MISHRA],
         sun_same_doctor_ot_and_night=False,
     )
     if solution_maybe is not None:
