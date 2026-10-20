@@ -18,7 +18,7 @@ from doctors import (
     DR_KRITIKA_PRASAD,
     DR_MADHURI_TRIPATHI,
     DR_MINAKSHI_MISHRA,
-    DR_RAHAMADUL_NISHA,
+    DR_RAHAMATUN_NISHA,
     DR_RAJAT_GUPTA,
     DR_RASHMI_SHARMA,
     DR_SAUMYA_SHUKLA,
@@ -56,7 +56,7 @@ def main():
         DR_RAJAT_GUPTA,
         DR_VIKAS_VERMA,
         DR_MADHURI_TRIPATHI,
-        DR_RAHAMADUL_NISHA,
+        DR_RAHAMATUN_NISHA,
     ]
     emos = [
         DR_MINAKSHI_MISHRA,
@@ -67,7 +67,7 @@ def main():
         DR_RAJAT_GUPTA,
         DR_VIKAS_VERMA,
         DR_MADHURI_TRIPATHI,
-        DR_RAHAMADUL_NISHA,
+        DR_RAHAMATUN_NISHA,
     ]
     dates = generate_month_dates(year, month)
     fixed_shifts = {}
@@ -103,7 +103,7 @@ def main():
         # 4, 11, 18, 25
         DR_MINAKSHI_MISHRA,
         DR_KRITIKA_PRASAD,
-        DR_RAHAMADUL_NISHA,
+        DR_RAHAMATUN_NISHA,
         DR_HITESH_KUREEL,
     ]
     sunday_night_shifts = [
@@ -111,7 +111,7 @@ def main():
         DR_AKASHDEEP_GUPTA,
         DR_MINAKSHI_MISHRA,
         DR_RASHMI_SHARMA,
-        DR_RAHAMADUL_NISHA,
+        DR_RAHAMATUN_NISHA,
     ]
     sundays = [dt.day for dt in dates if dt.weekday() == weeks.index("Sun")]
     assert len(sunday_morning_and_evening_shifts) == len(sundays)
@@ -170,11 +170,11 @@ def main():
 
     def my_custom_constraints(model, shift_vars):
         # When DR_MADHURI_TRIPATHI does night or is in night off, then evening duty will be done by either-
-        #  DR_RASHMI_SHARMA, DR_MINAKSHI_MISHRA, DR_RAHAMADUL_NISHA
+        #  DR_RASHMI_SHARMA, DR_MINAKSHI_MISHRA, DR_RAHAMATUN_NISHA
         DR_MADHURI_TRIPATHI_INDEX = all_doctors.index(DR_MADHURI_TRIPATHI)
         DR_RASHMI_SHARMA_INDEX = all_doctors.index(DR_RASHMI_SHARMA)
         DR_MINAKSHI_MISHRA_INDEX = all_doctors.index(DR_MINAKSHI_MISHRA)
-        DR_RAHAMADUL_NISHA_INDEX = all_doctors.index(DR_RAHAMADUL_NISHA)
+        DR_RAHAMATUN_NISHA_INDEX = all_doctors.index(DR_RAHAMATUN_NISHA)
         for dt in dates:
             if dt.weekday() != weeks.index("Sun"):
                 # DR_MADHURI_TRIPATHI is on night duty
@@ -182,7 +182,7 @@ def main():
                     (
                         shift_vars[(DR_RASHMI_SHARMA_INDEX, dt.day, "evening")]
                         + shift_vars[(DR_MINAKSHI_MISHRA_INDEX, dt.day, "evening")]
-                        + shift_vars[(DR_RAHAMADUL_NISHA_INDEX, dt.day, "evening")]
+                        + shift_vars[(DR_RAHAMATUN_NISHA_INDEX, dt.day, "evening")]
                     )
                     >= 1
                 ).OnlyEnforceIf(
@@ -194,7 +194,7 @@ def main():
                         (
                             shift_vars[(DR_RASHMI_SHARMA_INDEX, dt.day, "evening")]
                             + shift_vars[(DR_MINAKSHI_MISHRA_INDEX, dt.day, "evening")]
-                            + shift_vars[(DR_RAHAMADUL_NISHA_INDEX, dt.day, "evening")]
+                            + shift_vars[(DR_RAHAMATUN_NISHA_INDEX, dt.day, "evening")]
                         )
                         >= 1
                     )
@@ -204,7 +204,7 @@ def main():
                         (
                             shift_vars[(DR_RASHMI_SHARMA_INDEX, dt.day, "evening")]
                             + shift_vars[(DR_MINAKSHI_MISHRA_INDEX, dt.day, "evening")]
-                            + shift_vars[(DR_RAHAMADUL_NISHA_INDEX, dt.day, "evening")]
+                            + shift_vars[(DR_RAHAMATUN_NISHA_INDEX, dt.day, "evening")]
                         )
                         >= 1
                     ).OnlyEnforceIf(
@@ -219,7 +219,7 @@ def main():
         DR_AKASHDEEP_GUPTA: (3, 4),
         DR_VIKAS_VERMA: (3, 4),
         DR_MADHURI_TRIPATHI: (3, 4),
-        DR_RAHAMADUL_NISHA: (3, 4),
+        DR_RAHAMATUN_NISHA: (3, 4),
         # Senior EMOs
         DR_RASHMI_SHARMA: (3, 4),
         DR_MINAKSHI_MISHRA: (3, 4),
@@ -235,7 +235,7 @@ def main():
             minmax_evening_shifts[doc] = (0, 3)
         elif doc in [DR_RASHMI_SHARMA]:
             minmax_evening_shifts[doc] = (0, 3)
-        elif doc in [DR_RAHAMADUL_NISHA]:
+        elif doc in [DR_RAHAMATUN_NISHA]:
             minmax_evening_shifts[doc] = (0, 3)
         elif doc in emos and doc in sunday_morning_and_evening_shifts:
             minmax_evening_shifts[doc] = (0, 1)
